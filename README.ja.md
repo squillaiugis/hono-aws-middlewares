@@ -1,252 +1,311 @@
-# Vite Library Template
+# Hono AWS Middlewares
 
-ViteとTypeScriptを使用したモダンなライブラリ開発のためのテンプレートリポジトリです。
+[![npm version](https://badge.fury.io/js/@squilla%2Fhono-aws-middlewares.svg)](https://www.npmjs.com/package/@squilla/hono-aws-middlewares)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
-## このテンプレートについて
+HonoでAWSサービスを使用するためのミドルウェアライブラリです。
 
-このテンプレートは以下の技術スタックを使用してライブラリを開発するための完全なセットアップを提供します：
+## 概要
 
-- ⚡ **Vite**: 高速なビルドとホットリロード
-- 📘 **TypeScript**: 型安全なコード開発
-- 🧪 **Vitest**: 高速なテスト実行
-- 📋 **ESLint**: コード品質の維持
-- 🎨 **Prettier**: 統一されたコードフォーマット
-- 📦 **複数フォーマット**: ESM、CommonJS、UMD対応
-- 🔧 **VS Code設定**: 最適化された開発環境
+このライブラリは、Honoアプリケーション内でAWS SDK v3を簡単に使用できるよう設計されたミドルウェアコレクションです。AWSサービスのクライアントインスタンスを自動的に作成し、Honoのコンテキストに設定することで、アプリケーション全体で一貫したAWSサービスの利用を可能にします。
 
-## テンプレートの使用方法
+## 特徴
 
-### 1. リポジトリの作成
+- ⚡ **Hono対応**: Honoフレームワークとの完全な統合
+- 🏗️ **TypeScript**: 完全な型安全性
+- 🔧 **AWS SDK v3**: 最新のAWS SDKに対応
+- 📦 **軽量**: 必要な機能のみを選択的にインポート可能
+- 🧪 **テスト済み**: 包括的なテストカバレッジ
 
-このテンプレートを使用してリポジトリを作成します：
+## 対応サービス
 
-1. GitHubで「Use this template」ボタンをクリック
-2. 新しいリポジトリ名を入力
-3. リポジトリを作成
+現在、以下のAWSサービスに対応しています：
 
-または、CLIを使用：
+- **DynamoDB**: NoSQLデータベースサービス
+- **Secrets Manager**: シークレット管理サービス
 
-```bash
-# GitHub CLIを使用
-gh repo create my-awesome-library --template username/vite-library-template
+追加のAWSサービスも順次対応予定です。
 
-# 手動でクローン
-git clone https://github.com/username/vite-library-template.git my-awesome-library
-cd my-awesome-library
-```
-
-### 2. 初期設定
+## インストール
 
 ```bash
-# 依存関係をインストール
-npm install
-
-# パッケージ情報を更新
-npm init
+npm install @squilla/hono-aws-middlewares
 ```
 
-### 3. カスタマイズ
+### ピア依存関係
 
-以下のファイルを編集して、あなたのライブラリに合わせてカスタマイズします：
+使用するAWSサービスに応じて、以下のパッケージも合わせてインストールしてください：
 
-#### `package.json`
-```json
-{
-  "name": "your-library-name",
-  "version": "1.0.0",
-  "description": "あなたのライブラリの説明",
-  "author": "Your Name <your.email@example.com>",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/username/your-library-name.git"
-  },
-  "keywords": ["keyword1", "keyword2"]
-}
+```bash
+# DynamoDB用
+npm install @aws-sdk/client-dynamodb
+
+# Secrets Manager用
+npm install @aws-sdk/client-secrets-manager
+
+# Hono（必須）
+npm install hono
 ```
 
-#### `vite.config.ts`
+## 使用方法
+
+### DynamoDBミドルウェア
+
+DynamoDBのクライアントインスタンスをHonoコンテキストに設定します。
+
 ```typescript
-export default defineConfig({
-  plugins: [
-    dts({
-      include: ['lib/**/*'],
-      // ...
-    })
-  ],
-  build: {
-    lib: {
-      entry: resolve(__dirname, 'lib/index.ts'),
-      name: 'YourLibraryName', // グローバル名を更新
-      fileName: (format) => `your-library-name.${format}.js` // ファイル名を更新
+import { Hono } from 'hono';
+import { dynamoDBMiddleware, Env } from '@squilla/hono-aws-middlewares';
+
+const app = new Hono<Env>();
+
+// ミドルウェアの設定
+app.use('*', dynamoDBMiddleware({
+  region: 'ap-northeast-1'
+}));
+
+// DynamoDBの使用
+app.get('/users/:id', async (c) => {
+  const dynamoDB = c.get('DynamoDB');
+  const result = await dynamoDB.getItem({
+    TableName: 'Users',
+    Key: { id: { S: c.req.param('id') } }
+  });
+  return c.json(result.Item);
+});
+
+app.post('/users', async (c) => {
+  const dynamoDBClient = c.get('DynamoDBClient');
+  const body = await c.req.json();
+  
+  await dynamoDBClient.putItem({
+    TableName: 'Users',
+    Item: {
+      id: { S: body.id },
+      name: { S: body.name },
+      email: { S: body.email }
     }
+  });
+  
+  return c.json({ success: true });
+});
+```
+
+### Secrets Managerミドルウェア
+
+Secrets ManagerのクライアントインスタンスをHonoコンテキストに設定します。
+
+```typescript
+import { Hono } from 'hono';
+import { secretsManagerMiddleware, Env } from '@squilla/hono-aws-middlewares';
+
+const app = new Hono<Env>();
+
+// ミドルウェアの設定
+app.use('*', secretsManagerMiddleware({
+  region: 'ap-northeast-1'
+}));
+
+// Secrets Managerの使用
+app.get('/config', async (c) => {
+  const secretsManager = c.get('SecretsManager');
+  const result = await secretsManager.getSecretValue({
+    SecretId: 'prod/myapp/config'
+  });
+  return c.json({ config: result.SecretString });
+});
+```
+
+### 複数のミドルウェアの組み合わせ
+
+複数のAWSサービスを同時に使用する場合：
+
+```typescript
+import { Hono } from 'hono';
+import { 
+  dynamoDBMiddleware, 
+  secretsManagerMiddleware, 
+  Env 
+} from '@squilla/hono-aws-middlewares';
+
+const app = new Hono<Env>();
+
+// 複数のミドルウェアを設定
+app.use('*', dynamoDBMiddleware({ region: 'ap-northeast-1' }));
+app.use('*', secretsManagerMiddleware({ region: 'ap-northeast-1' }));
+
+app.get('/secure-data/:id', async (c) => {
+  // 設定情報をSecrets Managerから取得
+  const secretsManager = c.get('SecretsManager');
+  const config = await secretsManager.getSecretValue({
+    SecretId: 'prod/myapp/config'
+  });
+  
+  // DynamoDBからデータを取得
+  const dynamoDB = c.get('DynamoDB');
+  const result = await dynamoDB.getItem({
+    TableName: 'SecureData',
+    Key: { id: { S: c.req.param('id') } }
+  });
+  
+  return c.json({
+    data: result.Item,
+    config: JSON.parse(config.SecretString || '{}')
+  });
+});
+```
+
+### 個別インポート
+
+必要なミドルウェアのみをインポートすることも可能です：
+
+```typescript
+// DynamoDBのみ
+import { dynamoDBMiddleware } from '@squilla/hono-aws-middlewares/dynamodb';
+
+// Secrets Managerのみ
+import { secretsManagerMiddleware } from '@squilla/hono-aws-middlewares/secrets-manager';
+```
+
+## API リファレンス
+
+### DynamoDB
+
+#### `dynamoDBMiddleware(config?: DynamoDBClientConfig)`
+
+DynamoDBクライアントインスタンスを作成し、Honoコンテキストに設定するミドルウェアです。
+
+**パラメータ:**
+- `config` (オプション): DynamoDBクライアントの設定オプション
+
+**コンテキストに設定される変数:**
+- `DynamoDB`: AWS SDK v3のDynamoDBサービスインスタンス
+- `DynamoDBClient`: AWS SDK v3のDynamoDBClientインスタンス
+
+### Secrets Manager
+
+#### `secretsManagerMiddleware(config?: SecretsManagerClientConfig)`
+
+Secrets Managerクライアントインスタンスを作成し、Honoコンテキストに設定するミドルウェアです。
+
+**パラメータ:**
+- `config` (オプション): Secrets Managerクライアントの設定オプション
+
+**コンテキストに設定される変数:**
+- `SecretsManager`: AWS SDK v3のSecretsManagerサービスインスタンス
+- `SecretsManagerClient`: AWS SDK v3のSecretsManagerClientインスタンス
+
+## 環境要件
+
+- Node.js 18.0.0以上
+- TypeScript 5.0以上（TypeScriptを使用する場合）
+- Hono 4.x
+- AWS SDK v3
+
+## 設定オプション
+
+各ミドルウェアは、対応するAWS SDKの設定オプションをそのまま受け取ります。
+
+### 共通設定例
+
+```typescript
+const awsConfig = {
+  region: 'ap-northeast-1',
+  credentials: {
+    accessKeyId: 'your-access-key',
+    secretAccessKey: 'your-secret-key'
   }
-})
+};
+
+app.use('*', dynamoDBMiddleware(awsConfig));
+app.use('*', secretsManagerMiddleware(awsConfig));
 ```
 
-#### `lib/index.ts`
-このファイルがライブラリのメインエントリーポイントです。あなたの機能をここからエクスポートします。
+### Lambda環境での使用
 
-### 4. 開発開始
+AWS Lambda環境では、通常は認証情報の設定は不要です：
+
+```typescript
+app.use('*', dynamoDBMiddleware({
+  region: process.env.AWS_REGION
+}));
+```
+
+## 開発
+
+### プロジェクト構造
+
+```
+lib/
+├── dynamodb/               # DynamoDBミドルウェア
+│   ├── __tests__/         # テストファイル
+│   └── index.ts           # メイン実装
+├── secrets-manager/       # Secrets Managerミドルウェア
+│   ├── __tests__/         # テストファイル
+│   └── index.ts           # メイン実装
+└── index.ts               # エントリーポイント
+```
+
+### 利用可能なスクリプト
 
 ```bash
-# 開発モードで起動
-npm run dev
-
-# テストを実行
-npm run test
-
-# テストをウォッチモードで実行
-npm run test:watch
-
-# ビルドを実行
-npm run build
-```
-
-## ディレクトリ構造
-
-```
-your-library/
-├── lib/                    # ソースコード
-│   ├── __tests__/          # 単体テストコード
-│   └── index.ts            # メインエントリーポイント
-├── dist/                   # ビルド出力（自動生成）
-├── .vscode/                # VS Code設定
-├── vite.config.ts          # Vite設定
-├── vitest.config.ts        # Vitest設定
-├── tsconfig.json           # TypeScript設定
-├── .eslintrc.js            # ESLint設定
-├── .prettierrc             # Prettier設定
-├── package.json            # パッケージ設定
-└── README.md               # ドキュメント
-```
-
-## 利用可能なスクリプト
-
-```bash
-# ライブラリをビルド
+# ビルド
 npm run build
 
-# テストを実行
+# テスト実行
 npm run test
 
-# カバレッジ付きでテストを実行
+# テスト（カバレッジ付き）
 npm run test:coverage
 
-# ウォッチモードでテストを実行
-npm run test:watch
-
-# UIでテストを実行
-npm run test:ui
-
-# コードをリント
+# リント実行
 npm run lint
 
-# リンティング問題を修正
-npm run lint:fix
-
-# コードをフォーマット
+# コード整形
 npm run format
 
 # 型チェック
 npm run type-check
 
-# HTMLドキュメントを生成
+# ドキュメント生成
 npm run docs
-
-# マークダウンドキュメントを生成
-npm run docs:markdown
-
-# ローカルサーバーで確認
-npm run docs:serve
 ```
 
-## 開発ワークフロー
+### テスト
 
-1. **機能開発**: `lib/` ディレクトリに機能を実装
-2. **テスト作成**: 対応するテストファイルを作成
-3. **型定義**: 必要に応じて `lib/types.ts` を更新
-4. **ビルド確認**: `npm run build` でビルドエラーがないことを確認
-5. **テスト実行**: `npm run test` ですべてのテストが通ることを確認
-
-## ライブラリの公開
-
-### 1. パッケージの準備
+包括的なテストスイートが含まれています：
 
 ```bash
-# ビルドを実行
-npm run build
-
-# テストを実行
+# テスト実行
 npm run test
 
-# リンティングを実行
-npm run lint
+# カバレッジレポート生成
+npm run test:coverage
+
+# UIでのテスト実行
+npm run test:ui
 ```
 
-### 2. バージョン管理
+## コントリビューション
 
-```bash
-# パッチバージョンを上げる
-npm version patch
+プルリクエストや課題報告を歓迎します。新しいAWSサービスの対応要望もお気軽にお知らせください。
 
-# マイナーバージョンを上げる
-npm version minor
+### 新しいAWSサービスの追加
 
-# メジャーバージョンを上げる
-npm version major
-```
+1. `lib/`ディレクトリ内に新しいサービス用のフォルダを作成
+2. ミドルウェア実装とテストを追加
+3. `lib/index.ts`にエクスポートを追加
+4. `package.json`の`exports`に新しいエントリを追加
 
-### 3. 公開
+## ライセンス
 
-```bash
-# npmに公開
-npm publish
+[MIT License](LICENSE)
 
-# スコープ付きパッケージの場合
-npm publish --access public
-```
+## リンク
 
-## カスタマイズ例
-
-### React用ライブラリの場合
-
-`package.json`の`peerDependencies`を追加：
-
-```json
-{
-  "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
-  }
-}
-```
-
-### Vue用ライブラリの場合
-
-`vite.config.ts`を更新：
-
-```typescript
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-
-export default defineConfig({
-  plugins: [vue(), dts()],
-  // ...
-})
-```
-
-### Node.js用ライブラリの場合
-
-`package.json`を更新：
-
-```json
-{
-  "engines": {
-    "node": ">=18.0.0"
-  }
-}
-```
-
-## README.md の更新
-
-ライブラリが完成したら、このREADME.mdを実際のライブラリのドキュメントに置き換えてください。
+- [GitHub Repository](https://github.com/squillaiugis/hono-aws-middlewares)
+- [npm Package](https://www.npmjs.com/package/@squilla/hono-aws-middlewares)
+- [Documentation](https://squillaiugis.github.io/hono-aws-middlewares/)
+- [Hono](https://hono.dev/)
+- [AWS SDK for JavaScript v3](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/)
