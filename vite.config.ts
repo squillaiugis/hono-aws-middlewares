@@ -13,10 +13,25 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, 'lib/index.ts'),
-      name: 'MyLibrary',
-      fileName: format => `index.${format}.js`,
-      formats: ['es', 'cjs', 'umd'],
+      entry: {
+        index: resolve(__dirname, 'lib/index.ts'),
+        dynamodb: resolve(__dirname, 'lib/dynamodb/index.ts'),
+        'secrets-manager': resolve(__dirname, 'lib/secrets-manager/index.ts'),
+      },
+      name: 'HonoAwsMiddlewares',
+      fileName: (format, entryName) =>
+        entryName === 'index' ? `index.${format}.js` : `${entryName}/index.${format}.js`,
+      formats: ['es', 'cjs'],
+    },
+    rollupOptions: {
+      external: ['hono', '@aws-sdk/client-dynamodb', '@aws-sdk/client-secrets-manager'],
+      output: {
+        globals: {
+          hono: 'Hono',
+          '@aws-sdk/client-dynamodb': 'AwsSdkClientDynamodb',
+          '@aws-sdk/client-secrets-manager': 'AwsSdkClientSecretsManager',
+        },
+      },
     },
   },
   test: {

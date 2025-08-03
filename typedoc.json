@@ -1,7 +1,7 @@
 {
   "entryPoints": ["lib/index.ts"],
   "out": "docs",
-  "name": "Your Library Name",
+  "name": "Hono DynamoDB Middleware",
   "readme": "README.md",
   "exclude": [
     "**/*.test.ts",
@@ -70,10 +70,9 @@
   "githubPages": false,
   "gitRevision": "main",
   "gitRemote": "origin",
-  "sourceLinkTemplate": "https://github.com/your-username/your-library/blob/{gitRevision}/{path}#L{line}",
-  "titleLink": "https://github.com/your-username/your-library",
+  "sourceLinkTemplate": "https://github.com/squillaiugis/hono-aws-middlewares/blob/{gitRevision}/{path}#L{line}",
   "sidebarLinks": {
-    "GitHub": "https://github.com/your-username/your-library",
-    "NPM": "https://www.npmjs.com/package/your-library"
+    "GitHub": "https://github.com/squillaiugis/hono-aws-middlewares",
+    "NPM": "https://www.npmjs.com/package/@squilla/hono-aws-middlewares"
   }
 }
