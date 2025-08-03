@@ -13,10 +13,14 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, 'lib/index.ts'),
+      entry: {
+        index: resolve(__dirname, 'lib/index.ts'),
+        dynamodb: resolve(__dirname, 'lib/dynamodb/index.ts'),
+      },
       name: 'HonoDynamoDBMiddleware',
-      fileName: format => `index.${format}.js`,
-      formats: ['es', 'cjs', 'umd'],
+      fileName: (format, entryName) =>
+        entryName === 'index' ? `index.${format}.js` : `${entryName}/index.${format}.js`,
+      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: ['hono', '@aws-sdk/client-dynamodb'],
