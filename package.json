@@ -18,14 +18,15 @@
   "homepage": "https://squillaiugis.github.io/hono-aws-middlewares/",
   "keywords": [
     "hono",
-    "dynamodb",
-    "middleware",
     "aws",
     "aws-sdk",
+    "aws-sdk-v3",
+    "middleware",
     "typescript",
+    "dynamodb",
+    "secrets-manager",
     "serverless",
-    "web-framework",
-    "database"
+    "web-framework"
   ],
   "exports": {
     ".": {
