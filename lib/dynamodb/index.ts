@@ -62,6 +62,12 @@ export const dynamoDBMiddleware = <E extends Env>(
     // Set Variables
     c.set('DynamoDB', dynamoDB);
     c.set('DynamoDBClient', dynamoDBClient);
+
+    // Call next
     await next();
+
+    // Destroy Instances
+    dynamoDB.destroy();
+    dynamoDBClient.destroy();
   });
 };

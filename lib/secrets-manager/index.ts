@@ -65,6 +65,12 @@ export const secretsManagerMiddleware = <E extends Env>(
     // Set Variables
     c.set('SecretsManager', secretsManager);
     c.set('SecretsManagerClient', secretsManagerClient);
+
+    // Call next
     await next();
+
+    // Destroy Instances
+    secretsManager.destroy();
+    secretsManagerClient.destroy();
   });
 };
