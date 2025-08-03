@@ -24,11 +24,12 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: ['hono', '@aws-sdk/client-dynamodb'],
+      external: ['hono', '@aws-sdk/client-dynamodb', '@aws-sdk/client-secrets-manager'],
       output: {
         globals: {
           hono: 'Hono',
           '@aws-sdk/client-dynamodb': 'AwsSdkClientDynamodb',
+          '@aws-sdk/client-secrets-manager': 'AwsSdkClientSecretsManager',
         },
       },
     },
