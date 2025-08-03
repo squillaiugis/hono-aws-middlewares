@@ -1,0 +1,132 @@
+name: '🐛 Bug Report'
+description: Use this template if you have found a bug
+title: '[Bug]: '
+labels: ['bug', 'needs-triage']
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your bug report! 🐛
+
+        To help us resolve the issue quickly, please fill out the following information as thoroughly as possible.
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: Please provide a detailed description of the bug
+      placeholder: Describe what is happening and what you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: Please list the steps to reproduce the bug
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen
+      placeholder: Explain what should have happened
+    validations:
+      required: true
+
+  - type: textarea
+    id: minimal-reproduction
+    attributes:
+      label: Minimal Reproduction Code
+      description: Provide the minimal code to reproduce the issue
+      placeholder: |
+        ```javascript
+        // Minimal reproduction code
+        ```
+    validations:
+      required: false
+
+  - type: input
+    id: library-version
+    attributes:
+      label: Library Version
+      description: Specify the version of the library you are using
+      placeholder: 'e.g. 1.0.0'
+    validations:
+      required: true
+
+  - type: input
+    id: vite-version
+    attributes:
+      label: Vite Version
+      description: Specify the version of Vite you are using
+      placeholder: 'e.g. 5.0.0'
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js Version
+      description: Specify the version of Node.js you are using
+      placeholder: 'e.g. 18.17.0'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: Select the OS you are using
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser (if applicable)
+      description: Select the browser you are using
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Other
+        - Not applicable
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Provide any other relevant information
+      placeholder: Screenshots, logs, related settings, etc.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched for existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have confirmed the issue occurs with the latest version
+          required: true
+        - label: I have checked the documentation to ensure correct usage
+          required: true

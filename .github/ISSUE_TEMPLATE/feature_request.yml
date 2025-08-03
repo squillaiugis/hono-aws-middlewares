@@ -1,0 +1,85 @@
+name: '✨ Feature Request'
+description: Use this template to propose a new feature
+title: '[Feature]: '
+labels: ['enhancement', 'needs-triage']
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your feature request! ✨
+
+        To help us consider your suggestion, please fill out the following information in detail.
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: Please provide a detailed description of the proposed feature
+      placeholder: Describe what feature you would like to add
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem to Solve
+      description: Describe the problem this feature would solve
+      placeholder: Explain the current problem and how this feature would address it
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: If you have suggestions for how to implement the feature, please provide them
+      placeholder: How should it be implemented? API design ideas, etc.
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: If you have considered any alternatives, please describe them
+      placeholder: Other solutions or workarounds
+    validations:
+      required: false
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Please provide concrete use cases for this feature
+      placeholder: |
+        ```javascript
+        // Example usage
+        ```
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Select the priority for this feature
+      options:
+        - Low - Nice to have
+        - Medium - Important
+        - High - Essential
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: additional-info
+    attributes:
+      label: Additional Information
+      options:
+        - label: I am willing to help implement this feature
+          required: false
+        - label: I have searched for existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have confirmed this feature aligns with the purpose of the library
+          required: true

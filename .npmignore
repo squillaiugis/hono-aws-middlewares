@@ -1,0 +1,14 @@
+# TypeDoc
+typedoc.json
+typedoc.config.js
+
+# Document generation folder
+docs/
+docs-md/
+
+# Development files
+src/
+tests/
+__tests__/
+*.test.ts
+*.spec.ts

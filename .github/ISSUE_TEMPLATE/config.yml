@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: '📚 Documentation'
+    url: https://your-library-docs.com
+    about: Check the documentation and API reference for usage
+  - name: '💬 Discussions'
+    url: https://github.com/your-username/your-library/discussions
+    about: For questions or suggestions, please use Discussions

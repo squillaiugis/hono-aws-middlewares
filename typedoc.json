@@ -1,0 +1,79 @@
+{
+  "entryPoints": ["lib/index.ts"],
+  "out": "docs",
+  "name": "Your Library Name",
+  "readme": "README.md",
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/test/**/*",
+    "**/tests/**/*",
+    "**/__tests__/**/*",
+    "**/node_modules/**/*",
+    "**/dist/**/*"
+  ],
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "hideGenerator": false,
+  "includeVersion": true,
+  "sort": ["source-order"],
+  "kindSortOrder": [
+    "Document",
+    "Project",
+    "Module",
+    "Namespace",
+    "Enum",
+    "EnumMember",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Constructor",
+    "Property",
+    "Variable",
+    "Function",
+    "Accessor",
+    "Method",
+    "Parameter",
+    "TypeParameter",
+    "TypeLiteral",
+    "CallSignature",
+    "ConstructorSignature",
+    "IndexSignature",
+    "GetSignature",
+    "SetSignature"
+  ],
+  "categorizeByGroup": true,
+  "categoryOrder": ["Classes", "Interfaces", "Types", "Functions", "Variables", "Enums"],
+  "theme": "default",
+  "lightHighlightTheme": "light-plus",
+  "darkHighlightTheme": "dark-plus",
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true,
+    "includeFolders": true
+  },
+  "searchInComments": true,
+  "searchInDocuments": true,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "treatWarningsAsErrors": false,
+  "intentionallyNotExported": ["InternalType", "PrivateInterface"],
+  "plugin": [
+    "typedoc-plugin-mdn-links",
+    "typedoc-plugin-missing-exports",
+    "typedoc-plugin-rename-defaults"
+  ],
+  "githubPages": false,
+  "gitRevision": "main",
+  "gitRemote": "origin",
+  "sourceLinkTemplate": "https://github.com/your-username/your-library/blob/{gitRevision}/{path}#L{line}",
+  "titleLink": "https://github.com/your-username/your-library",
+  "sidebarLinks": {
+    "GitHub": "https://github.com/your-username/your-library",
+    "NPM": "https://www.npmjs.com/package/your-library"
+  }
+}
