@@ -1,10 +1,11 @@
 {
-  "name": "@squilla/my-lib",
+  "name": "@squilla/hono-aws-middlewares",
   "version": "0.0.0",
   "type": "module",
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
+  "description": "Hono middleware for AWS Services",
   "author": "Squilla <r-shrimp@outlook.jp>",
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
@@ -12,10 +13,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/squillaiugis/library-template"
+    "url": "https://github.com/squillaiugis/hono-aws-middlewares"
   },
-  "homepage": "https://squillaiugis.github.io/library-template/",
-  "keywords": [],
+  "homepage": "https://squillaiugis.github.io/hono-aws-middlewares/",
+  "keywords": [
+    "hono",
+    "dynamodb",
+    "middleware",
+    "aws",
+    "aws-sdk",
+    "typescript",
+    "serverless",
+    "web-framework",
+    "database"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -42,6 +53,10 @@
     "docs:json": "typedoc --json docs/typedoc.json",
     "prepare": "husky",
     "semantic-release": "semantic-release"
+  },
+  "peerDependencies": {
+    "@aws-sdk/client-dynamodb": "^3",
+    "hono": "^4"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",

@@ -14,9 +14,18 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'lib/index.ts'),
-      name: 'MyLibrary',
+      name: 'HonoDynamoDBMiddleware',
       fileName: format => `index.${format}.js`,
       formats: ['es', 'cjs', 'umd'],
+    },
+    rollupOptions: {
+      external: ['hono', '@aws-sdk/client-dynamodb'],
+      output: {
+        globals: {
+          hono: 'Hono',
+          '@aws-sdk/client-dynamodb': 'AwsSdkClientDynamodb',
+        },
+      },
     },
   },
   test: {
