@@ -16,8 +16,9 @@ export default defineConfig({
       entry: {
         index: resolve(__dirname, 'lib/index.ts'),
         dynamodb: resolve(__dirname, 'lib/dynamodb/index.ts'),
+        'secrets-manager': resolve(__dirname, 'lib/secrets-manager/index.ts'),
       },
-      name: 'HonoDynamoDBMiddleware',
+      name: 'HonoAwsMiddlewares',
       fileName: (format, entryName) =>
         entryName === 'index' ? `index.${format}.js` : `${entryName}/index.${format}.js`,
       formats: ['es', 'cjs'],

@@ -37,6 +37,11 @@
       "types": "./dist/dynamodb/index.d.ts",
       "import": "./dist/dynamodb/index.es.js",
       "require": "./dist/dynamodb/index.cjs.js"
+    },
+    "./secrets-manager": {
+      "types": "./dist/secrets-manager/index.d.ts",
+      "import": "./dist/secrets-manager/index.es.js",
+      "require": "./dist/secrets-manager/index.cjs.js"
     }
   },
   "files": [
@@ -61,6 +66,7 @@
   },
   "peerDependencies": {
     "@aws-sdk/client-dynamodb": "^3",
+    "@aws-sdk/client-secrets-manager": "^3.859.0",
     "hono": "^4"
   },
   "devDependencies": {
