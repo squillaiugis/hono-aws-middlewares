@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/squillaiugis/hono-aws-middlewares/compare/v1.1.0...v1.1.1) (2025-08-04)
+
+
+### Bug Fixes
+
+* add S3 client to Rollup external dependencies ([a60862a](https://github.com/squillaiugis/hono-aws-middlewares/commit/a60862ae708798597ae97642e2ecc0d8629ce089))
+
 # [1.1.0](https://github.com/squillaiugis/hono-aws-middlewares/compare/v1.0.0...v1.1.0) (2025-08-04)
 
 
