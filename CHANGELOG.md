@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/squillaiugis/hono-aws-middlewares/compare/v1.0.0...v1.1.0) (2025-08-04)
+
+
+### Features
+
+* add S3 middleware and update package configuration ([61e087d](https://github.com/squillaiugis/hono-aws-middlewares/commit/61e087d94a4dc946e219bad2a2a94bae2a89913d))
+
 # 1.0.0 (2025-08-03)
 
 
