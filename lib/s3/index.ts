@@ -49,7 +49,7 @@ export interface Env extends HonoEnv {
  * ```
  *
  * @typeParam E - Hono environment type that extends Env
- * @since 1.0.0
+ * @since 1.1.0
  */
 export const s3Middleware = <E extends Env>(config: S3ClientConfig = {}): MiddlewareHandler<E> => {
   return createMiddleware<E>(async (c, next) => {
