@@ -18,14 +18,15 @@
   "homepage": "https://squillaiugis.github.io/hono-aws-middlewares/",
   "keywords": [
     "hono",
-    "dynamodb",
-    "middleware",
     "aws",
     "aws-sdk",
+    "aws-sdk-v3",
+    "middleware",
     "typescript",
+    "dynamodb",
+    "secrets-manager",
     "serverless",
-    "web-framework",
-    "database"
+    "web-framework"
   ],
   "exports": {
     ".": {
@@ -42,6 +43,11 @@
       "types": "./dist/secrets-manager/index.d.ts",
       "import": "./dist/secrets-manager/index.es.js",
       "require": "./dist/secrets-manager/index.cjs.js"
+    },
+    "./s3": {
+      "types": "./dist/s3/index.d.ts",
+      "import": "./dist/s3/index.es.js",
+      "require": "./dist/s3/index.cjs.js"
     }
   },
   "files": [
@@ -66,7 +72,8 @@
   },
   "peerDependencies": {
     "@aws-sdk/client-dynamodb": "^3",
-    "@aws-sdk/client-secrets-manager": "^3.859.0",
+    "@aws-sdk/client-secrets-manager": "^3",
+    "@aws-sdk/client-s3": "^3",
     "hono": "^4"
   },
   "devDependencies": {
