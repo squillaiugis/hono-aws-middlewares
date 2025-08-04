@@ -300,11 +300,7 @@ Pull requests and issue reports are welcome. Feel free to request support for ne
 
 ## License
 
-[MIT License](LICENSE)
-
-## Author
-
-**Squilla** - [r-shrimp@outlook.jp](mailto:r-shrimp@outlook.jp)
+[Apache 2.0 License](LICENSE)
 
 ## Links
 

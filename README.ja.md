@@ -300,7 +300,7 @@ npm run test:ui
 
 ## ライセンス
 
-[MIT License](LICENSE)
+[Apache 2.0 License](LICENSE)
 
 ## リンク
 
