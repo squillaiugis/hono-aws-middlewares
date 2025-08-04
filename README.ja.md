@@ -23,6 +23,7 @@ HonoでAWSサービスを使用するためのミドルウェアライブラリ�
 現在、以下のAWSサービスに対応しています：
 
 - **DynamoDB**: NoSQLデータベースサービス
+- **S3**: オブジェクトストレージサービス
 - **Secrets Manager**: シークレット管理サービス
 
 追加のAWSサービスも順次対応予定です。
@@ -40,6 +41,9 @@ npm install @squilla/hono-aws-middlewares
 ```bash
 # DynamoDB用
 npm install @aws-sdk/client-dynamodb
+
+# S3用
+npm install @aws-sdk/client-s3
 
 # Secrets Manager用
 npm install @aws-sdk/client-secrets-manager
@@ -92,6 +96,59 @@ app.post('/users', async (c) => {
 });
 ```
 
+### S3ミドルウェア
+
+S3のクライアントインスタンスをHonoコンテキストに設定します。
+
+```typescript
+import { Hono } from 'hono';
+import { s3Middleware, Env } from '@squilla/hono-aws-middlewares';
+
+const app = new Hono<Env>();
+
+// ミドルウェアの設定
+app.use('*', s3Middleware({
+  region: 'ap-northeast-1'
+}));
+
+// S3の使用
+app.get('/files/:bucket/:key', async (c) => {
+  const s3 = c.get('S3');
+  const result = await s3.getObject({
+    Bucket: c.req.param('bucket'),
+    Key: c.req.param('key')
+  });
+  
+  // ファイル内容を返す
+  const body = await result.Body?.transformToString();
+  return c.text(body || '');
+});
+
+app.post('/files/:bucket/:key', async (c) => {
+  const s3Client = c.get('S3Client');
+  const body = await c.req.text();
+  
+  await s3Client.putObject({
+    Bucket: c.req.param('bucket'),
+    Key: c.req.param('key'),
+    Body: body,
+    ContentType: 'text/plain'
+  });
+  
+  return c.json({ success: true });
+});
+
+app.delete('/files/:bucket/:key', async (c) => {
+  const s3 = c.get('S3');
+  await s3.deleteObject({
+    Bucket: c.req.param('bucket'),
+    Key: c.req.param('key')
+  });
+  
+  return c.json({ success: true });
+});
+```
+
 ### Secrets Managerミドルウェア
 
 Secrets ManagerのクライアントインスタンスをHonoコンテキストに設定します。
@@ -125,6 +182,7 @@ app.get('/config', async (c) => {
 import { Hono } from 'hono';
 import { 
   dynamoDBMiddleware, 
+  s3Middleware,
   secretsManagerMiddleware, 
   Env 
 } from '@squilla/hono-aws-middlewares';
@@ -133,6 +191,7 @@ const app = new Hono<Env>();
 
 // 複数のミドルウェアを設定
 app.use('*', dynamoDBMiddleware({ region: 'ap-northeast-1' }));
+app.use('*', s3Middleware({ region: 'ap-northeast-1' }));
 app.use('*', secretsManagerMiddleware({ region: 'ap-northeast-1' }));
 
 app.get('/secure-data/:id', async (c) => {
@@ -149,9 +208,18 @@ app.get('/secure-data/:id', async (c) => {
     Key: { id: { S: c.req.param('id') } }
   });
   
+  // S3からファイルを取得
+  const s3 = c.get('S3');
+  const fileResult = await s3.getObject({
+    Bucket: 'secure-files',
+    Key: `data/${c.req.param('id')}.json`
+  });
+  const fileContent = await fileResult.Body?.transformToString();
+  
   return c.json({
     data: result.Item,
-    config: JSON.parse(config.SecretString || '{}')
+    config: JSON.parse(config.SecretString || '{}'),
+    file: fileContent ? JSON.parse(fileContent) : null
   });
 });
 ```
@@ -163,6 +231,9 @@ app.get('/secure-data/:id', async (c) => {
 ```typescript
 // DynamoDBのみ
 import { dynamoDBMiddleware } from '@squilla/hono-aws-middlewares/dynamodb';
+
+// S3のみ
+import { s3Middleware } from '@squilla/hono-aws-middlewares/s3';
 
 // Secrets Managerのみ
 import { secretsManagerMiddleware } from '@squilla/hono-aws-middlewares/secrets-manager';
@@ -182,6 +253,19 @@ DynamoDBクライアントインスタンスを作成し、Honoコンテキス�
 **コンテキストに設定される変数:**
 - `DynamoDB`: AWS SDK v3のDynamoDBサービスインスタンス
 - `DynamoDBClient`: AWS SDK v3のDynamoDBClientインスタンス
+
+### S3
+
+#### `s3Middleware(config?: S3ClientConfig)`
+
+S3クライアントインスタンスを作成し、Honoコンテキストに設定するミドルウェアです。
+
+**パラメータ:**
+- `config` (オプション): S3クライアントの設定オプション
+
+**コンテキストに設定される変数:**
+- `S3`: AWS SDK v3のS3サービスインスタンス
+- `S3Client`: AWS SDK v3のS3Clientインスタンス
 
 ### Secrets Manager
 
@@ -219,6 +303,7 @@ const awsConfig = {
 };
 
 app.use('*', dynamoDBMiddleware(awsConfig));
+app.use('*', s3Middleware(awsConfig));
 app.use('*', secretsManagerMiddleware(awsConfig));
 ```
 
@@ -230,6 +315,9 @@ AWS Lambda環境では、通常は認証情報の設定は不要です：
 app.use('*', dynamoDBMiddleware({
   region: process.env.AWS_REGION
 }));
+app.use('*', s3Middleware({
+  region: process.env.AWS_REGION
+}));
 ```
 
 ## 開発
@@ -239,6 +327,9 @@ app.use('*', dynamoDBMiddleware({
 ```
 lib/
 ├── dynamodb/               # DynamoDBミドルウェア
+│   ├── __tests__/         # テストファイル
+│   └── index.ts           # メイン実装
+├── s3/                    # S3ミドルウェア
 │   ├── __tests__/         # テストファイル
 │   └── index.ts           # メイン実装
 ├── secrets-manager/       # Secrets Managerミドルウェア

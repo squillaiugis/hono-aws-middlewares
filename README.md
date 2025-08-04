@@ -23,6 +23,7 @@ This library is a middleware collection designed to easily use AWS SDK v3 within
 Currently supports the following AWS services:
 
 - **DynamoDB**: NoSQL database service
+- **S3**: Object storage service
 - **Secrets Manager**: Secret management service
 
 Additional AWS services will be supported progressively.
@@ -40,6 +41,9 @@ Install the following packages according to the AWS services you plan to use:
 ```bash
 # For DynamoDB
 npm install @aws-sdk/client-dynamodb
+
+# For S3
+npm install @aws-sdk/client-s3
 
 # For Secrets Manager
 npm install @aws-sdk/client-secrets-manager
@@ -92,6 +96,59 @@ app.post('/users', async (c) => {
 });
 ```
 
+### S3 Middleware
+
+Sets S3 client instances in the Hono context.
+
+```typescript
+import { Hono } from 'hono';
+import { s3Middleware, Env } from '@squilla/hono-aws-middlewares';
+
+const app = new Hono<Env>();
+
+// Configure middleware
+app.use('*', s3Middleware({
+  region: 'ap-northeast-1'
+}));
+
+// Use S3
+app.get('/files/:bucket/:key', async (c) => {
+  const s3 = c.get('S3');
+  const result = await s3.getObject({
+    Bucket: c.req.param('bucket'),
+    Key: c.req.param('key')
+  });
+  
+  // Return file content
+  const body = await result.Body?.transformToString();
+  return c.text(body || '');
+});
+
+app.post('/files/:bucket/:key', async (c) => {
+  const s3Client = c.get('S3Client');
+  const body = await c.req.text();
+  
+  await s3Client.putObject({
+    Bucket: c.req.param('bucket'),
+    Key: c.req.param('key'),
+    Body: body,
+    ContentType: 'text/plain'
+  });
+  
+  return c.json({ success: true });
+});
+
+app.delete('/files/:bucket/:key', async (c) => {
+  const s3 = c.get('S3');
+  await s3.deleteObject({
+    Bucket: c.req.param('bucket'),
+    Key: c.req.param('key')
+  });
+  
+  return c.json({ success: true });
+});
+```
+
 ### Secrets Manager Middleware
 
 Sets Secrets Manager client instances in the Hono context.
@@ -125,6 +182,7 @@ When using multiple AWS services simultaneously:
 import { Hono } from 'hono';
 import { 
   dynamoDBMiddleware, 
+  s3Middleware,
   secretsManagerMiddleware, 
   Env 
 } from '@squilla/hono-aws-middlewares';
@@ -133,6 +191,7 @@ const app = new Hono<Env>();
 
 // Configure multiple middlewares
 app.use('*', dynamoDBMiddleware({ region: 'ap-northeast-1' }));
+app.use('*', s3Middleware({ region: 'ap-northeast-1' }));
 app.use('*', secretsManagerMiddleware({ region: 'ap-northeast-1' }));
 
 app.get('/secure-data/:id', async (c) => {
@@ -149,9 +208,18 @@ app.get('/secure-data/:id', async (c) => {
     Key: { id: { S: c.req.param('id') } }
   });
   
+  // Get file from S3
+  const s3 = c.get('S3');
+  const fileResult = await s3.getObject({
+    Bucket: 'secure-files',
+    Key: `data/${c.req.param('id')}.json`
+  });
+  const fileContent = await fileResult.Body?.transformToString();
+  
   return c.json({
     data: result.Item,
-    config: JSON.parse(config.SecretString || '{}')
+    config: JSON.parse(config.SecretString || '{}'),
+    file: fileContent ? JSON.parse(fileContent) : null
   });
 });
 ```
@@ -163,6 +231,9 @@ You can import only the middlewares you need:
 ```typescript
 // DynamoDB only
 import { dynamoDBMiddleware } from '@squilla/hono-aws-middlewares/dynamodb';
+
+// S3 only
+import { s3Middleware } from '@squilla/hono-aws-middlewares/s3';
 
 // Secrets Manager only
 import { secretsManagerMiddleware } from '@squilla/hono-aws-middlewares/secrets-manager';
@@ -182,6 +253,19 @@ Middleware that creates DynamoDB client instances and sets them in the Hono cont
 **Variables set in context:**
 - `DynamoDB`: AWS SDK v3 DynamoDB service instance
 - `DynamoDBClient`: AWS SDK v3 DynamoDBClient instance
+
+### S3
+
+#### `s3Middleware(config?: S3ClientConfig)`
+
+Middleware that creates S3 client instances and sets them in the Hono context.
+
+**Parameters:**
+- `config` (optional): Configuration options for the S3 client
+
+**Variables set in context:**
+- `S3`: AWS SDK v3 S3 service instance
+- `S3Client`: AWS SDK v3 S3Client instance
 
 ### Secrets Manager
 
@@ -219,6 +303,7 @@ const awsConfig = {
 };
 
 app.use('*', dynamoDBMiddleware(awsConfig));
+app.use('*', s3Middleware(awsConfig));
 app.use('*', secretsManagerMiddleware(awsConfig));
 ```
 
@@ -230,6 +315,9 @@ In AWS Lambda environments, credential configuration is usually unnecessary:
 app.use('*', dynamoDBMiddleware({
   region: process.env.AWS_REGION
 }));
+app.use('*', s3Middleware({
+  region: process.env.AWS_REGION
+}));
 ```
 
 ## Development
@@ -239,6 +327,9 @@ app.use('*', dynamoDBMiddleware({
 ```
 lib/
 ├── dynamodb/               # DynamoDB middleware
+│   ├── __tests__/         # Test files
+│   └── index.ts           # Main implementation
+├── s3/                    # S3 middleware
 │   ├── __tests__/         # Test files
 │   └── index.ts           # Main implementation
 ├── secrets-manager/       # Secrets Manager middleware
